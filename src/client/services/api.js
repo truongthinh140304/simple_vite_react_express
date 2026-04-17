@@ -36,11 +36,11 @@ const api = axios.create({
  */
 api.interceptors.request.use(
   (config) => {
-    // Example: Add auth token if available
-    // const token = localStorage.getItem('authToken');
-    // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`;
-    // }
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
 
     // Development logging
     if (import.meta.env.DEV) {

@@ -1,6 +1,7 @@
 import express from "express";
 import authService from "../../services/auth.service.js";
 import { successResponse, errorResponse } from "../../utils/response.js";
+import { authMiddleware } from "../../middleware/auth.middleware.js";
 
 const router = express.Router();
 
@@ -28,6 +29,14 @@ router.post("/login", async (req, res) => {
     console.error(err);
     res.status(400).json(errorResponse(err.message || "Login failed"));
   }
+});
+
+router.get("/me", authMiddleware, async (req, res) => {
+  res.status(200).json(
+    successResponse({
+      user: req.user,
+    })
+  );
 });
 
 export default router;

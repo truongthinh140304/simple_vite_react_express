@@ -16,6 +16,8 @@ import NewTasks from "./pages/NewTasks";
 import Projects from "./pages/Projects";
 import NotFound from "./pages/NotFound";
 import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 const root = document.getElementById("root");
 if (root !== null) {
@@ -35,6 +37,8 @@ if (root !== null) {
             <Route path="/new-tasks" element={<NewTasks key="new-tasks" />} />
             <Route path="/projects" element={<Projects key="projects" />} />
             <Route path="*" element={<NotFound />} />
+            <Route path="/login" element={<Login key="login" />} />
+            <Route path="/register" element={<Register key="register" />} />
           </Routes>
         </BrowserRouter>
       </ThemeProvider>
