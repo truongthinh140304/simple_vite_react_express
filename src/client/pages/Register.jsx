@@ -96,15 +96,11 @@ const Register = () => {
                             borderBottom: "1px solid rgba(0,0,0,0.06)",
                         }}
                     >
-                        <Typography variant="overline" sx={{ letterSpacing: 2, color: "text.secondary" }}>
-                            Create account
-                        </Typography>
-                        <Typography variant="h4" component="h1" sx={{ fontWeight: 700, mt: 1 }}>
+
+                        <Typography variant="h4" component="h1" sx={{ fontWeight: 700, mt: 1, textAlign: "center" }}>
                             Đăng ký tài khoản
                         </Typography>
-                        <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
-                            Tạo tài khoản mới để bắt đầu sử dụng hệ thống.
-                        </Typography>
+
                     </Box>
 
                     <CardContent sx={{ p: 4 }}>

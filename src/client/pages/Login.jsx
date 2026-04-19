@@ -89,15 +89,11 @@ const Login = () => {
                             borderBottom: "1px solid rgba(0,0,0,0.06)",
                         }}
                     >
-                        <Typography variant="overline" sx={{ letterSpacing: 2, color: "text.secondary" }}>
-                            Welcome back
-                        </Typography>
-                        <Typography variant="h4" component="h1" sx={{ fontWeight: 700, mt: 1 }}>
+
+                        <Typography variant="h4" component="h1" sx={{ fontWeight: 700, mt: 1, textAlign: "center" }}>
                             Đăng nhập
                         </Typography>
-                        <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
-                            Đăng nhập để tiếp tục quản lý contacts, tasks và projects.
-                        </Typography>
+
                     </Box>
 
                     <CardContent sx={{ p: 4 }}>
