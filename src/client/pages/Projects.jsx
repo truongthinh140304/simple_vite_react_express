@@ -81,6 +81,18 @@ const Projects = () => {
     return Math.round((completedTasks / tasks.length) * 100);
   };
 
+  const calculateTaskMembersCount = (tasks) => {
+    if (!tasks || tasks.length === 0) return 0;
+
+    const uniqueAssignees = new Set(
+      tasks
+        .map((task) => task.assigneeId)
+        .filter((assigneeId) => assigneeId !== null && assigneeId !== undefined)
+    );
+
+    return uniqueAssignees.size;
+  };
+
   const getInitials = (firstName, lastName) => {
     return `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase();
   };
@@ -174,7 +186,7 @@ const Projects = () => {
                   <Box display="flex" alignItems="center" gap={1}>
                     <PeopleIcon fontSize="small" />
                     <Typography variant="body2">
-                      {project._count?.members || 0} members
+                      {calculateTaskMembersCount(project.tasks)} members
                     </Typography>
                   </Box>
                 </Box>

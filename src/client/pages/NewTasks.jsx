@@ -5,7 +5,7 @@ import * as Yup from "yup";
 import { toast } from "react-toastify";
 import { Assignment, SaveAlt } from "@mui/icons-material"; // Đổi icon cho hợp với Task
 import { useSearchParams } from "react-router-dom";
-import { tasksService, projectsService } from "../services";
+import { tasksService, projectsService, contactsService } from "../services";
 
 const errorMessageSx = {
     color: "error.main",
@@ -17,18 +17,24 @@ const errorMessageSx = {
 const NewTasks = () => {
     const [searchParams] = useSearchParams();
     const [projects, setProjects] = useState([]);
+    const [contacts, setContacts] = useState([]);
 
     useEffect(() => {
-        const fetchProjects = async () => {
+        const fetchFormOptions = async () => {
             try {
-                const response = await projectsService.getAll();
-                setProjects(response.data || []);
+                const [projectsResponse, contactsResponse] = await Promise.all([
+                    projectsService.getAll(),
+                    contactsService.getAll(),
+                ]);
+
+                setProjects(projectsResponse.data || []);
+                setContacts(contactsResponse.data || []);
             } catch (error) {
                 console.error(error);
             }
         };
 
-        fetchProjects();
+        fetchFormOptions();
     }, []);
 
     const preselectedProjectId = searchParams.get("projectId") || "";
@@ -49,6 +55,7 @@ const NewTasks = () => {
                 priority: values.priority,
                 dueDate: values.dueDate || null,
                 projectId: values.projectId ? Number(values.projectId) : null,
+                assigneeId: values.assigneeId ? Number(values.assigneeId) : null,
             });
 
             toast.success("Task created successfully");
@@ -60,7 +67,7 @@ const NewTasks = () => {
     };
 
     return (
-        <Container maxWidth="md" component="main" sx={{ py: 10 }}>
+        <Container maxWidth="lg" component="main" sx={{ py: 8 }}>
             <Card elevation={10} sx={{ borderRadius: 5 }}>
                 <CardContent sx={{ p: 5 }}>
                     <Box display="flex" alignItems="center" mb={2}>
@@ -76,6 +83,7 @@ const NewTasks = () => {
                             description: "",
                             dueDate: "",
                             projectId: preselectedProjectId,
+                            assigneeId: "",
                             status: "TODO",
                             priority: "MEDIUM",
                         }}
@@ -86,7 +94,7 @@ const NewTasks = () => {
                         {({ handleSubmit, isSubmitting }) => (
                             <form onSubmit={handleSubmit}>
                                 <Grid container spacing={3}>
-                                    <Grid item xs={12} sm={6}>
+                                    <Grid size={{ xs: 12, sm: 6 }}>
                                         <Field
                                             name="title"
                                             as={TextField}
@@ -97,7 +105,7 @@ const NewTasks = () => {
                                         />
                                         <ErrorMessage name="title">{(msg) => <Box sx={errorMessageSx}>{msg}</Box>}</ErrorMessage>
                                     </Grid>
-                                    <Grid item xs={12} sm={6}>
+                                    <Grid size={{ xs: 12, sm: 6 }}>
                                         <Field
                                             name="description"
                                             as={TextField}
@@ -109,7 +117,7 @@ const NewTasks = () => {
                                         <ErrorMessage name="description">{(msg) => <Box sx={errorMessageSx}>{msg}</Box>}</ErrorMessage>
                                     </Grid>
 
-                                    <Grid item xs={12} sm={6}>
+                                    <Grid size={{ xs: 12, sm: 6 }}>
                                         <Field name="dueDate"
                                             as={TextField}
                                             label="Due Date"
@@ -122,7 +130,7 @@ const NewTasks = () => {
 
 
 
-                                    <Grid item xs={12} sm={6}>
+                                    <Grid size={{ xs: 12, sm: 6 }}>
                                         <Field
                                             name="projectId"
                                             as={TextField}
@@ -140,8 +148,26 @@ const NewTasks = () => {
                                         </Field>
                                     </Grid>
 
+                                    <Grid size={{ xs: 12, sm: 6 }}>
+                                        <Field
+                                            name="assigneeId"
+                                            as={TextField}
+                                            select
+                                            label="Assignee"
+                                            fullWidth
+                                            variant="outlined"
+                                        >
+                                            <MenuItem value="">Unassigned</MenuItem>
+                                            {contacts.map((contact) => (
+                                                <MenuItem value={contact.id} key={contact.id}>
+                                                    {[contact.firstName, contact.lastName].filter(Boolean).join(" ") || contact.email}
+                                                </MenuItem>
+                                            ))}
+                                        </Field>
+                                    </Grid>
 
-                                    <Grid item xs={12} sm={6}>
+
+                                    <Grid size={{ xs: 12, sm: 6 }}>
                                         <Field
                                             name="status"
                                             as={TextField}
@@ -160,7 +186,7 @@ const NewTasks = () => {
                                     </Grid>
 
 
-                                    <Grid item xs={12} sm={6}>
+                                    <Grid size={{ xs: 12, sm: 6 }}>
                                         <Field
                                             name="priority"
                                             as={TextField}
@@ -179,18 +205,20 @@ const NewTasks = () => {
                                         <ErrorMessage name="priority">{(msg) => <Box sx={errorMessageSx}>{msg}</Box>}</ErrorMessage>
                                     </Grid>
 
-                                    <Grid item xs={12}>
-                                        <Button
-                                            variant="contained"
-                                            color="primary"
-                                            type="submit"
-                                            size="large"
-                                            disabled={isSubmitting}
-                                            startIcon={<SaveAlt />}
-                                            sx={{ mt: 2, px: 4, py: 1.5, borderRadius: 2 }}
-                                        >
-                                            Create Task
-                                        </Button>
+                                    <Grid size={{ xs: 12 }}>
+                                        <Box display="flex" justifyContent="flex-end" mt={2}>
+                                            <Button
+                                                variant="contained"
+                                                color="primary"
+                                                type="submit"
+                                                size="large"
+                                                disabled={isSubmitting}
+                                                startIcon={<SaveAlt />}
+                                                sx={{ minWidth: 180, py: 1.5, borderRadius: 2 }}
+                                            >
+                                                Create Task
+                                            </Button>
+                                        </Box>
                                     </Grid>
                                 </Grid>
                             </form>

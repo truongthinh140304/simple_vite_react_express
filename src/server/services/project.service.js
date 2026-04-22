@@ -22,6 +22,7 @@ export const findAll = async (filters = {}) => {
           title: true,
           status: true,
           priority: true,
+          assigneeId: true,
         },
       },
       _count: {

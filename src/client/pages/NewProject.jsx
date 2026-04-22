@@ -133,7 +133,12 @@ const NewProject = () => {
                                     </Grid>
 
                                     <Grid item xs={12}>
-                                        <Box display="flex" gap={2}>
+                                        <Box
+                                            display="flex"
+                                            gap={2}
+                                            justifyContent="flex-end"
+                                            flexWrap={{ xs: "wrap", sm: "nowrap" }}
+                                        >
                                             <Button
                                                 variant="contained"
                                                 color="primary"
@@ -141,7 +146,7 @@ const NewProject = () => {
                                                 size="large"
                                                 disabled={isSubmitting || creating}
                                                 startIcon={<SaveAlt />}
-                                                sx={{ px: 4, py: 1.5, borderRadius: 2 }}
+                                                sx={{ minWidth: 180, py: 1.5, borderRadius: 2, flex: { xs: "1 1 100%", sm: "0 0 180px" } }}
                                             >
                                                 Create Project
                                             </Button>
@@ -152,7 +157,7 @@ const NewProject = () => {
                                                 variant="outlined"
                                                 size="large"
                                                 startIcon={<Assignment />}
-                                                sx={{ px: 3, py: 1.5, borderRadius: 2 }}
+                                                sx={{ minWidth: 180, py: 1.5, borderRadius: 2, flex: { xs: "1 1 100%", sm: "0 0 180px" } }}
                                             >
                                                 Go To New Task
                                             </Button>
