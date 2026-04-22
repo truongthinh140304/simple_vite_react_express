@@ -16,9 +16,11 @@ import {
 } from "@mui/material";
 import { Email, Lock, Visibility, VisibilityOff } from "@mui/icons-material";
 import { login } from "../services/auth";
+import { useAppContext } from "../context";
 
 const Login = () => {
     const navigate = useNavigate();
+    const { setAuth } = useAppContext();
 
     const [form, setForm] = useState({
         email: "",
@@ -45,8 +47,7 @@ const Login = () => {
         try {
             const res = await login(form.email, form.password);
 
-            localStorage.setItem("token", res.data.token);
-            localStorage.setItem("user", JSON.stringify(res.data.user));
+            setAuth(res.data.user, res.data.token);
 
             navigate("/");
         } catch (error) {

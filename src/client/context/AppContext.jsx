@@ -32,6 +32,12 @@ const defaultContextValue = {
     isDarkMode: false,
     toggleTheme: () => { },
 
+    // Auth
+    user: null,
+    token: null,
+    setAuth: () => { },
+    clearAuth: () => { },
+
     // App config
     appName: "Simple Vite React Express",
     version: "2.1.0",
@@ -75,6 +81,16 @@ export function AppProvider({ children }) {
         return window.matchMedia?.("(prefers-color-scheme: dark)").matches || false;
     });
 
+    const [authState, setAuthState] = useState(() => {
+        const savedUser = localStorage.getItem("user");
+        const savedToken = localStorage.getItem("token");
+
+        return {
+            user: savedUser ? JSON.parse(savedUser) : null,
+            token: savedToken,
+        };
+    });
+
     /**
      * Toggle between light and dark theme
      * Persists preference to localStorage
@@ -96,6 +112,24 @@ export function AppProvider({ children }) {
         localStorage.setItem("theme", dark ? "dark" : "light");
     }, []);
 
+    const setAuth = useCallback((user, token) => {
+        setAuthState({ user, token });
+
+        if (user) {
+            localStorage.setItem("user", JSON.stringify(user));
+        }
+
+        if (token) {
+            localStorage.setItem("token", token);
+        }
+    }, []);
+
+    const clearAuth = useCallback(() => {
+        setAuthState({ user: null, token: null });
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+    }, []);
+
     // Memoize context value to prevent unnecessary re-renders
     const contextValue = useMemo(
         () => ({
@@ -104,11 +138,17 @@ export function AppProvider({ children }) {
             toggleTheme,
             setTheme,
 
+            // Auth
+            user: authState.user,
+            token: authState.token,
+            setAuth,
+            clearAuth,
+
             // App config
             appName: "Simple Vite React Express",
             version: "2.1.0",
         }),
-        [isDarkMode, toggleTheme, setTheme]
+        [authState.user, authState.token, isDarkMode, toggleTheme, setTheme, setAuth, clearAuth]
     );
 
     return (

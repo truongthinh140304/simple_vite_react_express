@@ -4,8 +4,18 @@ import AppBar from "@mui/material/AppBar";
 import Button from "@mui/material/Button";
 import Link from "@mui/material/Link";
 import { Link as RouterLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useAppContext } from "../context";
 
 const Header = () => {
+  const navigate = useNavigate();
+  const { user, clearAuth } = useAppContext();
+
+  const handleLogout = () => {
+    clearAuth();
+    navigate("/login");
+  };
+
   return (
     <div>
       <AppBar
@@ -22,9 +32,6 @@ const Header = () => {
               <Box ml={1}>simple-vite-react-express</Box>
             </Box>
           </Link>
-          <Button component={RouterLink} to="/login" color="inherit">
-            Login
-          </Button>
           <Button component={RouterLink} to="/contacts" color="inherit">
             Contacts
           </Button>
@@ -34,6 +41,20 @@ const Header = () => {
           <Button component={RouterLink} to="/projects" color="inherit">
             Projects
           </Button>
+          {user ? (
+            <>
+              <Button color="inherit" sx={{ textTransform: "none" }}>
+                {user.name || user.email}
+              </Button>
+              <Button color="inherit" onClick={handleLogout}>
+                Logout
+              </Button>
+            </>
+          ) : (
+            <Button component={RouterLink} to="/login" color="inherit">
+              Login
+            </Button>
+          )}
         </Toolbar>
       </AppBar>
     </div>

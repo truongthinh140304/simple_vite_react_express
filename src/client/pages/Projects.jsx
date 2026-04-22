@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Container,
   Typography,
@@ -101,11 +102,9 @@ const Projects = () => {
         </Typography>
         <Button
           variant="contained"
+          component={Link}
+          to="/new-project"
           startIcon={<AddIcon />}
-          onClick={() => {
-            // Navigate to new project form
-            toast.info('New project form - to be implemented');
-          }}
           sx={{
             fontWeight: 600,
             textTransform: 'none',

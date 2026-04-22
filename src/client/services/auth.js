@@ -18,7 +18,7 @@ export const register = async (name, email, password) => {
 
 export const login = async (email, password) => {
   const response = await fetch(`${API_URL}/login`, {
-    method: "POST",
+    method: "POST", 
     headers: {
       "Content-Type": "application/json",
     },

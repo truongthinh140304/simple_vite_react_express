@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { celebrate, Joi, Segments } from 'celebrate';
 import * as taskService from '../../services/task.service.js';
 import { successResponse, errorResponse } from '../../utils/response.js';
+import { authMiddleware } from '../../middleware/auth.middleware.js';
 
 const router = Router();
 
@@ -68,9 +69,12 @@ router.get('/:id', celebrate(taskIdSchema), async (req, res) => {
   }
 });
 
-router.post('/create', celebrate(createTaskSchema), async (req, res) => {
+router.post('/create', authMiddleware, celebrate(createTaskSchema), async (req, res) => {
   try {
-    const task = await taskService.create(req.body);
+    const task = await taskService.create({
+      ...req.body,
+      createdByName: req.user?.name || req.user?.email || null,
+    });
     res.status(201).json(successResponse(task, 'Task created successfully'));
   } catch (error) {
     console.error('Error creating task:', error);

@@ -1,9 +1,11 @@
+import { useEffect, useState } from "react";
 import { TextField, Button, Typography, Grid, Box, Container, Card, CardContent, MenuItem } from "@mui/material";
 import { Formik, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
 import { Assignment, SaveAlt } from "@mui/icons-material"; // Đổi icon cho hợp với Task
-import { tasksService } from "../services";
+import { useSearchParams } from "react-router-dom";
+import { tasksService, projectsService } from "../services";
 
 const errorMessageSx = {
     color: "error.main",
@@ -13,6 +15,24 @@ const errorMessageSx = {
 };
 
 const NewTasks = () => {
+    const [searchParams] = useSearchParams();
+    const [projects, setProjects] = useState([]);
+
+    useEffect(() => {
+        const fetchProjects = async () => {
+            try {
+                const response = await projectsService.getAll();
+                setProjects(response.data || []);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        fetchProjects();
+    }, []);
+
+    const preselectedProjectId = searchParams.get("projectId") || "";
+
     const TaskSchema = Yup.object().shape({
         title: Yup.string().required("Title is required"),
         description: Yup.string().required("Description is required"),
@@ -27,6 +47,8 @@ const NewTasks = () => {
                 description: values.description,
                 status: values.status,
                 priority: values.priority,
+                dueDate: values.dueDate || null,
+                projectId: values.projectId ? Number(values.projectId) : null,
             });
 
             toast.success("Task created successfully");
@@ -38,10 +60,10 @@ const NewTasks = () => {
     };
 
     return (
-        <Container maxWidth="md" component="main" sx={{ py: 4 }}>
-            <Card elevation={2} sx={{ borderRadius: 2 }}>
-                <CardContent sx={{ p: 4 }}>
-                    <Box display="flex" alignItems="center" mb={4}>
+        <Container maxWidth="md" component="main" sx={{ py: 10 }}>
+            <Card elevation={10} sx={{ borderRadius: 5 }}>
+                <CardContent sx={{ p: 5 }}>
+                    <Box display="flex" alignItems="center" mb={2}>
                         <Assignment sx={{ fontSize: 32, color: "primary.main", mr: 2 }} />
                         <Typography variant="h4" component="h1" gutterBottom fontWeight="medium">
                             New Task
@@ -52,9 +74,12 @@ const NewTasks = () => {
                         initialValues={{
                             title: "",
                             description: "",
+                            dueDate: "",
+                            projectId: preselectedProjectId,
                             status: "TODO",
                             priority: "MEDIUM",
                         }}
+                        enableReinitialize
                         validationSchema={TaskSchema}
                         onSubmit={handleTaskSubmit}
                     >
@@ -82,6 +107,37 @@ const NewTasks = () => {
                                             variant="outlined"
                                         />
                                         <ErrorMessage name="description">{(msg) => <Box sx={errorMessageSx}>{msg}</Box>}</ErrorMessage>
+                                    </Grid>
+
+                                    <Grid item xs={12} sm={6}>
+                                        <Field name="dueDate"
+                                            as={TextField}
+                                            label="Due Date"
+                                            type="date"
+                                            fullWidth
+                                            variant="outlined"
+                                            InputLabelProps={{ shrink: true }} />
+                                        <ErrorMessage name="dueDate"> {(msg) => <Box sx={errorMessageSx}>{msg}</Box>} </ErrorMessage>
+                                    </Grid>
+
+
+
+                                    <Grid item xs={12} sm={6}>
+                                        <Field
+                                            name="projectId"
+                                            as={TextField}
+                                            select
+                                            label="Project"
+                                            fullWidth
+                                            variant="outlined"
+                                        >
+                                            <MenuItem value="">No Project</MenuItem>
+                                            {projects.map((project) => (
+                                                <MenuItem value={project.id} key={project.id}>
+                                                    {project.name}
+                                                </MenuItem>
+                                            ))}
+                                        </Field>
                                     </Grid>
 
 

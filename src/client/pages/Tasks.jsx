@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from "react-router-dom";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 
 import {
   Container,
@@ -119,9 +120,12 @@ const Tasks = () => {
           <TaskIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
           Tasks
         </Typography>
-        <Button variant="contained" color="primary" component={Link} to="/new-tasks" startIcon={<AddCircleOutlineIcon />} sx={{ borderRadius: 2, px: 3, py: 1 }}>
-          New Task
-        </Button>
+        <Box display="flex" gap={1.5}>
+
+          <Button variant="contained" color="primary" component={Link} to="/new-tasks" startIcon={<AddCircleOutlineIcon />} sx={{ borderRadius: 2, px: 3, py: 1 }}>
+            New Task
+          </Button>
+        </Box>
       </Box>
 
       {/* Filters */}
@@ -171,7 +175,7 @@ const Tasks = () => {
                   <Box>
                     <IconButton
                       size="small"
-                      onClick={() => toast.info('Edit task - to be implemented')}
+                      component={Link} to={`/task/${task.id}`} color="primary" size="small"
                     >
                       <EditIcon />
                     </IconButton>
@@ -207,6 +211,10 @@ const Tasks = () => {
 
                 <Typography variant="body2" color="text.secondary" mb={1}>
                   Due: {formatDate(task.dueDate)}
+                </Typography>
+
+                <Typography variant="body2" color="text.secondary" mb={1}>
+                  Author: {task.createdByName || 'Unknown'}
                 </Typography>
 
                 {task.assignee && (
