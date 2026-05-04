@@ -22,7 +22,7 @@
  */
 
 import { createContext, useContext, useState, useMemo, useCallback } from "react";
-
+import { logout } from "../services/auth";
 /**
  * Default context values
  * @type {Object}
@@ -126,8 +126,7 @@ export function AppProvider({ children }) {
 
     const clearAuth = useCallback(() => {
         setAuthState({ user: null, token: null });
-        localStorage.removeItem("user");
-        localStorage.removeItem("token");
+        logout(); // xóa localStorage
     }, []);
 
     // Memoize context value to prevent unnecessary re-renders

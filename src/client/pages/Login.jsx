@@ -46,7 +46,7 @@ const Login = () => {
 
         try {
             const { token, user } = await login(form.email, form.password);
-            setAuth(user, token);  // ✅ cập nhật context
+            setAuth(user, token);
             navigate("/");
         } catch (error) {
             setErrorMessage(error.response?.data?.message || "Không thể đăng nhập");
