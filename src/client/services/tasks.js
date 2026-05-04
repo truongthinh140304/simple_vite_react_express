@@ -39,6 +39,7 @@ export const Priority = {
   MEDIUM: "MEDIUM",
   HIGH: "HIGH",
   URGENT: "URGENT",
+  ULTRA: "ULTRA",
 };
 
 /**

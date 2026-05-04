@@ -16,11 +16,12 @@ import {
 } from "@mui/material";
 import { Email, Lock, Person, Visibility, VisibilityOff } from "@mui/icons-material";
 import { register } from "../services/auth";
+import { useAppContext } from "../context";
 
 
 const Register = () => {
     const navigate = useNavigate();
-
+    const { setAuth } = useAppContext()
 
     const [form, setForm] = useState({
         name: "",
@@ -54,8 +55,14 @@ const Register = () => {
         setLoading(true);
 
         try {
-            await register(form.name, form.email, form.password, form.confirmPassword)
-            navigate("/login")
+            const result = await register(form.name, form.email, form.password, form.confirmPassword)
+            if (result?.token) {
+                setAuth(result.user, result.token);
+                navigate("/");
+            } else {
+                navigate("/login")
+            }
+
         } catch (error) {
 
             const errorMsg = error.response?.data?.message

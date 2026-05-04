@@ -1,33 +1,21 @@
 import api from "./api.js";
 
 export const register = async (name, email, password, confirmPassword) => {
-  const response = await api.post("/auth/register", { name, email, password, confirmPassword });
-  return response.data;
+  return await api.post("/auth/register", { name, email, password, confirmPassword });
 };
 
 export const login = async (email, password) => {
   const response = await api.post("/auth/login", { email, password });
+  // api interceptor đã unwrap, response = { token, user, ... }
+  const { token, user } = response;
 
-  // ✅ Lấy token và user từ response
-  const { token, user } = response.data;
-
-  // ✅ Lưu vào localStorage
   if (token) {
     localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify(user));
   }
 
-  return response.data;
+  return { token, user };
 };
-
-// ✅ Lưu ngay vào localStorage
-if (token) {
-  localStorage.setItem("token", token);
-  localStorage.setItem("user", JSON.stringify(user));
-}
-
-return { token, user };
-
 
 export const logout = () => {
   localStorage.removeItem("token");
