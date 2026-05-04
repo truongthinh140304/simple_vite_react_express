@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { TextField, Button, Typography, Grid, Box, Container, Card, CardContent, MenuItem } from "@mui/material";
 import { Formik, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
-import { Assignment, SaveAlt } from "@mui/icons-material"; // Đổi icon cho hợp với Task
-import { useSearchParams } from "react-router-dom";
-import { tasksService, projectsService, contactsService } from "../services";
+import { Assignment, SaveAlt } from "@mui/icons-material";
+import { useProjects, useContacts } from "../hooks";
 
 const errorMessageSx = {
     color: "error.main",
@@ -16,28 +16,15 @@ const errorMessageSx = {
 
 const NewTasks = () => {
     const [searchParams] = useSearchParams();
-    const [projects, setProjects] = useState([]);
-    const [contacts, setContacts] = useState([]);
+    const navigate = useNavigate();
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    useEffect(() => {
-        const fetchFormOptions = async () => {
-            try {
-                const [projectsResponse, contactsResponse] = await Promise.all([
-                    projectsService.getAll(),
-                    contactsService.getAll(),
-                ]);
-
-                setProjects(projectsResponse.data || []);
-                setContacts(contactsResponse.data || []);
-            } catch (error) {
-                console.error(error);
-            }
-        };
-
-        fetchFormOptions();
-    }, []);
+    // Use custom hooks instead of manual fetch
+    const { projects, isLoading: projectsLoading } = useProjects();
+    const { contacts, isLoading: contactsLoading } = useContacts();
 
     const preselectedProjectId = searchParams.get("projectId") || "";
+    const isLoading = projectsLoading || contactsLoading;
 
     const TaskSchema = Yup.object().shape({
         title: Yup.string().required("Title is required"),
@@ -48,21 +35,32 @@ const NewTasks = () => {
 
     const handleTaskSubmit = async (values, { resetForm }) => {
         try {
-            await tasksService.create({
-                title: values.title,
-                description: values.description,
-                status: values.status,
-                priority: values.priority,
-                dueDate: values.dueDate || null,
-                projectId: values.projectId ? Number(values.projectId) : null,
-                assigneeId: values.assigneeId ? Number(values.assigneeId) : null,
+            setIsSubmitting(true);
+
+            const response = await fetch("/api/v1/task/create", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    title: values.title,
+                    description: values.description,
+                    status: values.status,
+                    priority: values.priority,
+                    dueDate: values.dueDate || null,
+                    projectId: values.projectId ? Number(values.projectId) : null,
+                    assigneeId: values.assigneeId ? Number(values.assigneeId) : null,
+                }),
             });
+
+            if (!response.ok) throw new Error("Failed to create task");
 
             toast.success("Task created successfully");
             resetForm();
+            navigate("/tasks");
         } catch (err) {
             console.error(err);
             toast.error("An error occurred while creating the task");
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -91,7 +89,7 @@ const NewTasks = () => {
                         validationSchema={TaskSchema}
                         onSubmit={handleTaskSubmit}
                     >
-                        {({ handleSubmit, isSubmitting }) => (
+                        {({ handleSubmit }) => (
                             <form onSubmit={handleSubmit}>
                                 <Grid container spacing={3}>
                                     <Grid size={{ xs: 12, sm: 6 }}>
@@ -138,6 +136,7 @@ const NewTasks = () => {
                                             label="Project"
                                             fullWidth
                                             variant="outlined"
+                                            disabled={isLoading}
                                         >
                                             <MenuItem value="">No Project</MenuItem>
                                             {projects.map((project) => (
@@ -156,6 +155,7 @@ const NewTasks = () => {
                                             label="Assignee"
                                             fullWidth
                                             variant="outlined"
+                                            disabled={isLoading}
                                         >
                                             <MenuItem value="">Unassigned</MenuItem>
                                             {contacts.map((contact) => (
@@ -212,7 +212,7 @@ const NewTasks = () => {
                                                 color="primary"
                                                 type="submit"
                                                 size="large"
-                                                disabled={isSubmitting}
+                                                disabled={isSubmitting || isLoading}
                                                 startIcon={<SaveAlt />}
                                                 sx={{ minWidth: 180, py: 1.5, borderRadius: 2 }}
                                             >

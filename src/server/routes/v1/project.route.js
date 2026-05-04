@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { celebrate, Joi, Segments } from 'celebrate';
 import * as projectService from '../../services/project.service.js';
 import { successResponse, errorResponse } from '../../utils/response.js';
+import { authMiddleware } from '../../middleware/auth.middleware.js';
 
 const router = Router();
 
@@ -40,11 +41,11 @@ const addMemberSchema = {
 };
 
 // Routes
-router.get('/list', async (req, res) => {
+router.get('/list', authMiddleware, async (req, res) => {
   try {
     const { status } = req.query;
     const filters = {};
-    
+
     if (status) filters.status = status;
 
     const projects = await projectService.findAll(filters);
@@ -55,7 +56,7 @@ router.get('/list', async (req, res) => {
   }
 });
 
-router.get('/:id', celebrate(projectIdSchema), async (req, res) => {
+router.get('/:id', authMiddleware, celebrate(projectIdSchema), async (req, res) => {
   try {
     const project = await projectService.findById(parseInt(req.params.id));
     if (!project) {
@@ -68,7 +69,7 @@ router.get('/:id', celebrate(projectIdSchema), async (req, res) => {
   }
 });
 
-router.post('/create', celebrate(createProjectSchema), async (req, res) => {
+router.post('/create', authMiddleware, celebrate(createProjectSchema), async (req, res) => {
   try {
     const project = await projectService.create(req.body);
     res.status(201).json(successResponse(project, 'Project created successfully'));
@@ -78,7 +79,7 @@ router.post('/create', celebrate(createProjectSchema), async (req, res) => {
   }
 });
 
-router.put('/:id', celebrate({ ...projectIdSchema, ...updateProjectSchema }), async (req, res) => {
+router.put('/:id', authMiddleware, celebrate({ ...projectIdSchema, ...updateProjectSchema }), async (req, res) => {
   try {
     const project = await projectService.update(parseInt(req.params.id), req.body);
     if (!project) {
@@ -91,7 +92,7 @@ router.put('/:id', celebrate({ ...projectIdSchema, ...updateProjectSchema }), as
   }
 });
 
-router.delete('/:id', celebrate(projectIdSchema), async (req, res) => {
+router.delete('/:id', authMiddleware, celebrate(projectIdSchema), async (req, res) => {
   try {
     const deleted = await projectService.remove(parseInt(req.params.id));
     if (!deleted) {
@@ -105,7 +106,7 @@ router.delete('/:id', celebrate(projectIdSchema), async (req, res) => {
 });
 
 // Project members management
-router.post('/:id/members', celebrate({ ...projectIdSchema, ...addMemberSchema }), async (req, res) => {
+router.post('/:id/members', authMiddleware, celebrate({ ...projectIdSchema, ...addMemberSchema }), async (req, res) => {
   try {
     const member = await projectService.addMember(parseInt(req.params.id), req.body);
     res.status(201).json(successResponse(member, 'Member added to project successfully'));
@@ -119,7 +120,7 @@ router.post('/:id/members', celebrate({ ...projectIdSchema, ...addMemberSchema }
   }
 });
 
-router.get('/:id/members', celebrate(projectIdSchema), async (req, res) => {
+router.get('/:id/members', authMiddleware, celebrate(projectIdSchema), async (req, res) => {
   try {
     const members = await projectService.getMembers(parseInt(req.params.id));
     res.json(successResponse(members, 'Project members retrieved successfully'));
@@ -129,7 +130,7 @@ router.get('/:id/members', celebrate(projectIdSchema), async (req, res) => {
   }
 });
 
-router.delete('/:id/members/:contactId', celebrate({
+router.delete('/:id/members/:contactId', authMiddleware, celebrate({
   [Segments.PARAMS]: Joi.object({
     id: Joi.number().integer().positive().required(),
     contactId: Joi.number().integer().positive().required(),

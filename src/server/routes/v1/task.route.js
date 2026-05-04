@@ -38,7 +38,7 @@ const taskIdSchema = {
 };
 
 // Routes
-router.get('/list', async (req, res) => {
+router.get('/list', authMiddleware, async (req, res) => {
   try {
     const { status, priority, assigneeId, projectId } = req.query;
     const filters = {};
@@ -56,7 +56,7 @@ router.get('/list', async (req, res) => {
   }
 });
 
-router.get('/:id', celebrate(taskIdSchema), async (req, res) => {
+router.get('/:id', authMiddleware, celebrate(taskIdSchema), async (req, res) => {
   try {
     const task = await taskService.findById(parseInt(req.params.id));
     if (!task) {
@@ -82,7 +82,7 @@ router.post('/create', authMiddleware, celebrate(createTaskSchema), async (req, 
   }
 });
 
-router.put('/:id', celebrate({ ...taskIdSchema, ...updateTaskSchema }), async (req, res) => {
+router.put('/:id', authMiddleware, celebrate({ ...taskIdSchema, ...updateTaskSchema }), async (req, res) => {
   try {
     const task = await taskService.update(parseInt(req.params.id), req.body);
     if (!task) {
@@ -95,7 +95,7 @@ router.put('/:id', celebrate({ ...taskIdSchema, ...updateTaskSchema }), async (r
   }
 });
 
-router.delete('/:id', celebrate(taskIdSchema), async (req, res) => {
+router.delete('/:id', authMiddleware, celebrate(taskIdSchema), async (req, res) => {
   try {
     const deleted = await taskService.remove(parseInt(req.params.id));
     if (!deleted) {
@@ -109,7 +109,7 @@ router.delete('/:id', celebrate(taskIdSchema), async (req, res) => {
 });
 
 // Update task status
-router.patch('/:id/status', celebrate({
+router.patch('/:id/status', authMiddleware, celebrate({
   [Segments.PARAMS]: Joi.object({
     id: Joi.number().integer().positive().required(),
   }),

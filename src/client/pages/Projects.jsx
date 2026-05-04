@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   Container,
@@ -22,52 +22,17 @@ import {
   People as PeopleIcon,
   Assignment as TaskIcon,
 } from '@mui/icons-material';
-import { toast } from 'react-toastify';
-import axios from 'axios';
+import { useProjects } from '../hooks';
+import AppLoading from '../components/AppLoading';
 
 const Projects = () => {
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { projects, isLoading, deleteProject } = useProjects();
 
   const statusColors = {
     active: 'success',
     planning: 'warning',
     completed: 'primary',
     on_hold: 'default',
-  };
-
-  const fetchProjects = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get('/api/v1/project/list');
-      if (response.data.success) {
-        setProjects(response.data.data);
-      }
-    } catch (error) {
-      console.error('Error fetching projects:', error);
-      toast.error('Failed to fetch projects');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchProjects();
-  }, []);
-
-  const handleDeleteProject = async (projectId) => {
-    if (window.confirm('Are you sure you want to delete this project? This will also delete all associated tasks.')) {
-      try {
-        const response = await axios.delete(`/api/v1/project/${projectId}`);
-        if (response.data.success) {
-          toast.success('Project deleted successfully');
-          fetchProjects();
-        }
-      } catch (error) {
-        console.error('Error deleting project:', error);
-        toast.error('Failed to delete project');
-      }
-    }
   };
 
   const formatDate = (dateString) => {
@@ -97,12 +62,8 @@ const Projects = () => {
     return `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase();
   };
 
-  if (loading) {
-    return (
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-        <Typography>Loading projects...</Typography>
-      </Container>
-    );
+  if (isLoading) {
+    return <AppLoading />;
   }
 
   return (
@@ -147,14 +108,16 @@ const Projects = () => {
                   <Box>
                     <IconButton
                       size="small"
-                      onClick={() => toast.info('Edit project - to be implemented')}
+                      component={Link}
+                      to={`/project/${project.id}`}
+                      color="primary"
                     >
                       <EditIcon />
                     </IconButton>
                     <IconButton
                       size="small"
                       color="error"
-                      onClick={() => handleDeleteProject(project.id)}
+                      onClick={() => deleteProject(project.id)}
                     >
                       <DeleteIcon />
                     </IconButton>

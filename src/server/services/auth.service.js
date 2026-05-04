@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import db from "./database.js";
+import config from "../config/index.js";
 
 class AuthService {
   async register(data) {
@@ -31,7 +32,23 @@ class AuthService {
       },
     });
 
-    return user;
+    const token = jwt.sign(
+      {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      },
+      config.jwt.secret,
+      {
+        expiresIn: config.jwt.expiresIn,
+      }
+    );
+
+    return {
+      token,
+      user,
+    };
   }
 
   async login(data) {
@@ -58,9 +75,9 @@ class AuthService {
         name: user.name,
         role: user.role,
       },
-      process.env.JWT_SECRET || "secret_key",
+      config.jwt.secret,
       {
-        expiresIn: "1d",
+        expiresIn: config.jwt.expiresIn,
       }
     );
 

@@ -1,36 +1,33 @@
-const API_URL = "/api/v1/auth";
+import api from "./api.js";
 
-export const register = async (name, email, password) => {
-  const response = await fetch(`${API_URL}/register`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ name, email, password }),
-  });
-
-  if (!response.ok) {
-    throw new Error("Register failed");
-  }
-
-  return response.json();
+export const register = async (name, email, password, confirmPassword) => {
+  const response = await api.post("/auth/register", { name, email, password, confirmPassword });
+  return response.data;
 };
 
 export const login = async (email, password) => {
-  const response = await fetch(`${API_URL}/login`, {
-    method: "POST", 
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email, password }),
-  });
+  const response = await api.post("/auth/login", { email, password });
 
-  if (!response.ok) {
-    throw new Error("Login failed");
+  // ✅ Lấy token và user từ response
+  const { token, user } = response.data;
+
+  // ✅ Lưu vào localStorage
+  if (token) {
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(user));
   }
 
-  return response.json();
+  return response.data;
 };
+
+// ✅ Lưu ngay vào localStorage
+if (token) {
+  localStorage.setItem("token", token);
+  localStorage.setItem("user", JSON.stringify(user));
+}
+
+return { token, user };
+
 
 export const logout = () => {
   localStorage.removeItem("token");

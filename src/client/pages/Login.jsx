@@ -47,11 +47,9 @@ const Login = () => {
         try {
             const res = await login(form.email, form.password);
 
-            setAuth(res.data.user, res.data.token);
-
             navigate("/");
         } catch (error) {
-            setErrorMessage("Sai email hoặc mật khẩu");
+            setErrorMessage(error.response?.data?.message || "Không thể đăng nhập");
             console.error(error);
         } finally {
             setLoading(false);

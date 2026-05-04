@@ -16,11 +16,11 @@ import {
 } from "@mui/material";
 import { Email, Lock, Person, Visibility, VisibilityOff } from "@mui/icons-material";
 import { register } from "../services/auth";
-import { useAppContext } from "../context";
+
 
 const Register = () => {
     const navigate = useNavigate();
-    const { setAuth } = useAppContext();
+
 
     const [form, setForm] = useState({
         name: "",
@@ -54,11 +54,15 @@ const Register = () => {
         setLoading(true);
 
         try {
-            await register(form.name, form.email, form.password)
-            navigate("/login")  // đăng ký xong → chuyển sang login
+            await register(form.name, form.email, form.password, form.confirmPassword)
+            navigate("/login")
         } catch (error) {
-            setErrorMessage("Không thể đăng ký tài khoản")
-            console.error(error)
+
+            const errorMsg = error.response?.data?.message
+                || error.message
+                || "Không thể đăng ký tài khoản";
+            setErrorMessage(errorMsg);
+            console.error("Register error:", error.response?.data || error);
         } finally {
             setLoading(false);
         }

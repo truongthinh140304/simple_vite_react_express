@@ -2,6 +2,7 @@ import express from "express";
 import { contactValidation } from "../../middleware/validate.js";
 import { successResponse, errorResponse } from "../../utils/response.js";
 import contactService from "../../services/contact.service.js";
+import { authMiddleware } from "../../middleware/auth.middleware.js";
 
 const router = express.Router();
 
@@ -9,7 +10,7 @@ const router = express.Router();
  * GET /list
  * Retrieve a list of contacts.
  */
-router.get("/list", async (req, res) => {
+router.get("/list", authMiddleware, async (req, res) => {
   try {
     const contacts = await contactService.findAll();
     res.status(200).json(successResponse(contacts));
@@ -23,7 +24,7 @@ router.get("/list", async (req, res) => {
  * GET /:id
  * Retrieve a contact by ID.
  */
-router.get("/:id", async (req, res) => {
+router.get("/:id", authMiddleware, async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -44,7 +45,7 @@ router.get("/:id", async (req, res) => {
  * POST /create
  * Create a new contact.
  */
-router.post("/", contactValidation.create, async (req, res) => {
+router.post("/", authMiddleware, contactValidation.create, async (req, res) => {
   const { firstName, lastName, email } = req.body;
 
   try {
@@ -61,7 +62,7 @@ router.post("/", contactValidation.create, async (req, res) => {
  * PUT /update/:id
  * Update an existing contact by ID.
  */
-router.put("/:id", contactValidation.update, async (req, res) => {
+router.put("/:id", authMiddleware, contactValidation.update, async (req, res) => {
   const { id } = req.params;
   const { firstName, lastName, email } = req.body;
 
@@ -79,7 +80,7 @@ router.put("/:id", contactValidation.update, async (req, res) => {
  * DELETE /delete/:id
  * Delete a contact by ID.
  */
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authMiddleware, async (req, res) => {
   const { id } = req.params;
 
   try {

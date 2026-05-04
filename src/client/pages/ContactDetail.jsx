@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
 import { Avatar, Box, Card, CardContent, Container, Divider, Typography } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import { Email, Person, AccountCircle } from "@mui/icons-material";
+import { contactsService } from "../services";
 
 const ContactDetail = () => {
   const { id } = useParams();
@@ -12,9 +12,8 @@ const ContactDetail = () => {
   useEffect(() => {
     const fetchContact = async () => {
       try {
-        const response = await axios.get(`/api/v1/contact/${id}`);
-        setContact(response.data.data);
-        console.log("ContactDetail.jsx: contact: ", response.data);
+        const response = await contactsService.getById(id);
+        setContact(response.data || response);
       } catch (err) {
         console.error("Error fetching contact details:", err);
       }

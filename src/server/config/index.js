@@ -105,6 +105,14 @@ const config = {
   cors: {
     origin: getEnv("CORS_ORIGIN", "*"),
   },
+
+  /**
+   * JWT configuration
+   */
+  jwt: {
+    secret: _requireEnv("JWT_SECRET"),
+    expiresIn: "1d",
+  },
 };
 
 export default config;
