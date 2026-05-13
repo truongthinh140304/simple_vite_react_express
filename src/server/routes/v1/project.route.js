@@ -33,12 +33,7 @@ const projectIdSchema = {
   }),
 };
 
-const addMemberSchema = {
-  [Segments.BODY]: Joi.object({
-    contactId: Joi.number().integer().positive().required(),
-    role: Joi.string().optional().default('member'),
-  }),
-};
+
 
 // Routes
 router.get('/list', authMiddleware, async (req, res) => {
@@ -105,50 +100,6 @@ router.delete('/:id', authMiddleware, celebrate(projectIdSchema), async (req, re
   }
 });
 
-// Project members management
-router.post('/:id/members', authMiddleware, celebrate({ ...projectIdSchema, ...addMemberSchema }), async (req, res) => {
-  try {
-    const member = await projectService.addMember(parseInt(req.params.id), req.body);
-    res.status(201).json(successResponse(member, 'Member added to project successfully'));
-  } catch (error) {
-    console.error('Error adding member to project:', error);
-    if (error.code === 'P2002') {
-      res.status(400).json(errorResponse('Contact is already a member of this project'));
-    } else {
-      res.status(500).json(errorResponse('Failed to add member to project'));
-    }
-  }
-});
 
-router.get('/:id/members', authMiddleware, celebrate(projectIdSchema), async (req, res) => {
-  try {
-    const members = await projectService.getMembers(parseInt(req.params.id));
-    res.json(successResponse(members, 'Project members retrieved successfully'));
-  } catch (error) {
-    console.error('Error fetching project members:', error);
-    res.status(500).json(errorResponse('Failed to fetch project members'));
-  }
-});
-
-router.delete('/:id/members/:contactId', authMiddleware, celebrate({
-  [Segments.PARAMS]: Joi.object({
-    id: Joi.number().integer().positive().required(),
-    contactId: Joi.number().integer().positive().required(),
-  }),
-}), async (req, res) => {
-  try {
-    const removed = await projectService.removeMember(
-      parseInt(req.params.id),
-      parseInt(req.params.contactId)
-    );
-    if (!removed) {
-      return res.status(404).json(errorResponse('Member not found in project'));
-    }
-    res.json(successResponse(null, 'Member removed from project successfully'));
-  } catch (error) {
-    console.error('Error removing member from project:', error);
-    res.status(500).json(errorResponse('Failed to remove member from project'));
-  }
-});
 
 export default router;

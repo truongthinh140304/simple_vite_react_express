@@ -3,12 +3,10 @@
  * ==================
  *
  * Custom hook for managing projects data and operations.
- * Includes member management functionality.
  *
  * Features:
  * - Automatic data fetching on mount
  * - Project CRUD operations
- * - Member add/remove operations
  * - Loading and error states
  *
  * Usage:
@@ -16,8 +14,6 @@
  *     projects,
  *     isLoading,
  *     createProject,
- *     addMember,
- *     removeMember,
  *   } = useProjects();
  */
 
@@ -121,32 +117,7 @@ export function useProjects(options = {}) {
     }
   };
 
-  /**
-   * Add a member to a project
-   * @param {number|string} projectId - Project ID
-   * @param {number|string} contactId - Contact ID to add
-   * @param {string} [role='member'] - Member's role
-   * @returns {Promise<Object>} Created membership
-   */
-  const addMember = async (projectId, contactId, role = "member") => {
-    const response = await projectsService.addMember(projectId, contactId, role);
-    toast.success("Member added successfully");
-    // Refresh to get updated member list
-    await fetchProjects();
-    return response.data;
-  };
 
-  /**
-   * Remove a member from a project
-   * @param {number|string} projectId - Project ID
-   * @param {number|string} contactId - Contact ID to remove
-   * @returns {Promise<void>}
-   */
-  const removeMember = async (projectId, contactId) => {
-    await projectsService.removeMember(projectId, contactId);
-    toast.success("Member removed successfully");
-    await fetchProjects();
-  };
 
   // Auto-fetch on mount if enabled
   useEffect(() => {
@@ -167,10 +138,6 @@ export function useProjects(options = {}) {
     createProject,
     updateProject,
     deleteProject,
-
-    // Member management
-    addMember,
-    removeMember,
   };
 }
 

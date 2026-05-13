@@ -9,8 +9,6 @@ import {
   Chip,
   Button,
   LinearProgress,
-  Avatar,
-  AvatarGroup,
   IconButton,
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
@@ -44,22 +42,6 @@ const Projects = () => {
     if (!tasks || tasks.length === 0) return 0;
     const completedTasks = tasks.filter(task => task.status === 'DONE').length;
     return Math.round((completedTasks / tasks.length) * 100);
-  };
-
-  const calculateTaskMembersCount = (tasks) => {
-    if (!tasks || tasks.length === 0) return 0;
-
-    const uniqueAssignees = new Set(
-      tasks
-        .map((task) => task.assigneeId)
-        .filter((assigneeId) => assigneeId !== null && assigneeId !== undefined)
-    );
-
-    return uniqueAssignees.size;
-  };
-
-  const getInitials = (firstName, lastName) => {
-    return `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase();
   };
 
   if (isLoading) {
@@ -99,37 +81,44 @@ const Projects = () => {
       <Grid container spacing={3}>
         {projects.map((project) => (
           <Grid size={{ xs: 12, md: 6, lg: 4 }} key={project.id}>
-            <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-              <CardContent sx={{ flexGrow: 1 }}>
+            <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', minHeight: 450 }}>
+              <CardContent sx={{ display: 'flex', flexDirection: 'column', height: '100%', p: 2.5 }}>
+                {/* Header */}
                 <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
-                  <Typography variant="h6" component="h2" sx={{ flexGrow: 1 }}>
-                    {project.name}
-                  </Typography>
-                  <Box>
+                  <Box sx={{ flexGrow: 1, pr: 1 }}>
+                    <Typography variant="h6" component="h2" sx={{ lineHeight: 1.3 }}>
+                      {project.name}
+                    </Typography>
+                  </Box>
+                  <Box display="flex" gap={0.5}>
                     <IconButton
                       size="small"
                       component={Link}
                       to={`/project/${project.id}`}
                       color="primary"
                     >
-                      <EditIcon />
+                      <EditIcon sx={{ fontSize: 18 }} />
                     </IconButton>
                     <IconButton
                       size="small"
                       color="error"
                       onClick={() => deleteProject(project.id)}
                     >
-                      <DeleteIcon />
+                      <DeleteIcon sx={{ fontSize: 18 }} />
                     </IconButton>
                   </Box>
                 </Box>
 
-                {project.description && (
-                  <Typography variant="body2" color="text.secondary" mb={2}>
-                    {project.description}
-                  </Typography>
-                )}
+                {/* Description */}
+                <Box mb={1.5} sx={{ minHeight: 40 }}>
+                  {project.description && (
+                    <Typography variant="body2" color="text.secondary" sx={{ display: '-webkit-box', overflow: 'hidden', textOverflow: 'ellipsis', WebkitLineClamp: 2 }}>
+                      {project.description}
+                    </Typography>
+                  )}
+                </Box>
 
+                {/* Status */}
                 <Box mb={2}>
                   <Chip
                     label={project.status.replace('_', ' ').toUpperCase()}
@@ -138,63 +127,70 @@ const Projects = () => {
                   />
                 </Box>
 
-                {/* Project Stats */}
-                <Box display="flex" justifyContent="space-between" mb={2}>
+                {/* Stats */}
+                <Box display="flex" justifyContent="space-between" mb={2} sx={{ p: 1.5, bgcolor: 'action.hover', borderRadius: 1 }}>
                   <Box display="flex" alignItems="center" gap={1}>
                     <TaskIcon fontSize="small" />
-                    <Typography variant="body2">
+                    <Typography variant="body2" fontWeight={500}>
                       {project._count?.tasks || 0} tasks
                     </Typography>
                   </Box>
                   <Box display="flex" alignItems="center" gap={1}>
                     <PeopleIcon fontSize="small" />
-                    <Typography variant="body2">
-                      {calculateTaskMembersCount(project.tasks)} members
+                    <Typography variant="body2" fontWeight={500}>
+                      {project._count?.members || 0} members
                     </Typography>
                   </Box>
                 </Box>
 
                 {/* Progress Bar */}
-                {project.tasks && project.tasks.length > 0 && (
-                  <Box mb={2}>
-                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                      <Typography variant="body2">Progress</Typography>
-                      <Typography variant="body2">
-                        {calculateProgress(project.tasks)}%
-                      </Typography>
-                    </Box>
-                    <LinearProgress
-                      variant="determinate"
-                      value={calculateProgress(project.tasks)}
-                      sx={{ height: 8, borderRadius: 4 }}
-                    />
-                  </Box>
-                )}
+                <Box mb={2} sx={{ minHeight: 50 }}>
+                  {project.tasks && project.tasks.length > 0 ? (
+                    <>
+                      <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                        <Typography variant="body2" fontWeight={500}>Progress</Typography>
+                        <Typography variant="body2" fontWeight={500}>
+                          {calculateProgress(project.tasks)}%
+                        </Typography>
+                      </Box>
+                      <LinearProgress
+                        variant="determinate"
+                        value={calculateProgress(project.tasks)}
+                        sx={{ height: 8, borderRadius: 4 }}
+                      />
+                    </>
+                  ) : (
+                    <Typography variant="body2" color="text.secondary" sx={{ pt: 1 }}>No tasks yet</Typography>
+                  )}
+                </Box>
 
                 {/* Team Members */}
-                {project.members && project.members.length > 0 && (
-                  <Box mb={2}>
-                    <Typography variant="body2" mb={1}>Team</Typography>
-                    <AvatarGroup max={4} sx={{ justifyContent: 'flex-start' }}>
-                      {project.members.map((member) => (
-                        <Avatar
-                          key={member.id}
-                          sx={{ width: 32, height: 32, fontSize: '0.875rem' }}
-                          title={`${member.contact.firstName} ${member.contact.lastName} (${member.role})`}
-                        >
-                          {getInitials(member.contact.firstName, member.contact.lastName)}
-                        </Avatar>
-                      ))}
-                    </AvatarGroup>
-                  </Box>
-                )}
+                <Box mb={2} sx={{ minHeight: 45, flexGrow: 1 }}>
+                  {project.members && project.members.length > 0 ? (
+                    <>
+                      <Typography variant="body2" fontWeight={500} mb={1}>Team Members</Typography>
+                      <Box display="flex" gap={1} flexWrap="wrap">
+                        {project.members.map((member) => (
+                          <Chip
+                            key={member.id}
+                            label={`${member.contact.firstName} ${member.contact.lastName}`}
+                            size="small"
+                            variant="outlined"
+                          />
+                        ))}
+                      </Box>
+                    </>
+                  ) : (
+                    <Typography variant="body2" color="text.secondary">No team members</Typography>
+                  )}
+                </Box>
 
-                {/* Dates */}
-                <Box>
-                  <Typography variant="body2" color="text.secondary">
+                {/* Dates - Sticky at bottom */}
+                <Box sx={{ borderTop: '1px solid', borderColor: 'divider', pt: 2, mt: 'auto' }}>
+                  <Typography variant="caption" display="block" color="text.secondary">
                     Start: {formatDate(project.startDate)}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant="caption" display="block" color="text.secondary">
                     End: {formatDate(project.endDate)}
                   </Typography>
                 </Box>

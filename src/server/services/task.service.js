@@ -53,25 +53,53 @@ export const findById = async (id) => {
 };
 
 export const create = async (data) => {
-  return await db.prisma.task.create({
-    data,
-    include: {
-      assignee: {
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          email: true,
+  return await db.prisma.$transaction(async (tx) => {
+    // Create task
+    const task = await tx.task.create({
+      data,
+      include: {
+        assignee: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+        project: {
+          select: {
+            id: true,
+            name: true,
+            status: true,
+          },
         },
       },
-      project: {
-        select: {
-          id: true,
-          name: true,
-          status: true,
-        },
-      },
-    },
+    });
+
+    // If task has assignee and project, add assignee to project members
+    if (data.assigneeId && data.projectId) {
+      try {
+        await tx.projectMember.upsert({
+          where: {
+            contactId_projectId: {
+              contactId: data.assigneeId,
+              projectId: data.projectId,
+            },
+          },
+          update: {},
+          create: {
+            contactId: data.assigneeId,
+            projectId: data.projectId,
+            role: 'member',
+          },
+        });
+      } catch (error) {
+        // Ignore if already exists
+        console.log('Member already exists or error:', error.message);
+      }
+    }
+
+    return task;
   });
 };
 

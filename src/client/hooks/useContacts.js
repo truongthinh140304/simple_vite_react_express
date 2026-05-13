@@ -82,10 +82,9 @@ export function useContacts(options = {}) {
     try {
       const response = await contactsService.update(id, data);
       // Optimistic update - update local state immediately
-      setContacts((prev) =>
-        prev.map((contact) =>
-          contact.id === Number(id) ? { ...contact, ...data } : contact
-        )
+      setContacts((prev) => prev.map((contact) =>
+        contact.id === Number(id) ? { ...contact, ...data } : contact
+      )
       );
       toast.success("Contact updated successfully");
       return response.data;

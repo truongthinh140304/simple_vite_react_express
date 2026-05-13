@@ -10,12 +10,12 @@ const router = Router();
 const createTaskSchema = {
   [Segments.BODY]: Joi.object({
     title: Joi.string().required().min(1).max(255),
-    description: Joi.string().optional().allow('').max(1000),
+    description: Joi.string().required().max(1000),
     status: Joi.string().valid('TODO', 'IN_PROGRESS', 'REVIEW', 'DONE').default('TODO'),
     priority: Joi.string().valid('LOW', 'MEDIUM', 'HIGH', 'URGENT', 'ULTRA').default('MEDIUM'),
-    dueDate: Joi.date().optional(),
-    assigneeId: Joi.number().integer().positive().optional(),
-    projectId: Joi.number().integer().positive().optional(),
+    dueDate: Joi.string().optional().allow(null, ''),
+    assigneeId: Joi.number().integer().positive().optional().allow(null),
+    projectId: Joi.number().integer().positive().optional().allow(null),
   }),
 };
 

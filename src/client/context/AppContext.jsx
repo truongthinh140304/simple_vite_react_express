@@ -4,7 +4,7 @@
  *
  * Global application context for shared state across components.
  * Currently handles:
- * - Theme mode (light/dark) - prepared for future dark mode support
+ * - Authentication state
  * - App-wide configuration
  *
  * This context is designed to be extended as the app grows.
@@ -13,7 +13,7 @@
  * Usage:
  *   // In a component
  *   import { useAppContext } from '@/client/context';
- *   const { isDarkMode, toggleTheme } = useAppContext();
+ *   const { user, token, setAuth, clearAuth } = useAppContext();
  *
  *   // Wrap app with provider (already done in index.jsx)
  *   <AppProvider>
@@ -28,10 +28,6 @@ import { logout } from "../services/auth";
  * @type {Object}
  */
 const defaultContextValue = {
-    // Theme
-    isDarkMode: false,
-    toggleTheme: () => { },
-
     // Auth
     user: null,
     token: null,
@@ -70,17 +66,6 @@ export function useAppContext() {
  * @returns {React.ReactElement}
  */
 export function AppProvider({ children }) {
-    // Theme state - can be extended to persist in localStorage
-    const [isDarkMode, setIsDarkMode] = useState(() => {
-        // Check for saved preference in localStorage
-        const saved = localStorage.getItem("theme");
-        if (saved) {
-            return saved === "dark";
-        }
-        // Check system preference
-        return window.matchMedia?.("(prefers-color-scheme: dark)").matches || false;
-    });
-
     const [authState, setAuthState] = useState(() => {
         const savedUser = localStorage.getItem("user");
         const savedToken = localStorage.getItem("token");
@@ -90,27 +75,6 @@ export function AppProvider({ children }) {
             token: savedToken,
         };
     });
-
-    /**
-     * Toggle between light and dark theme
-     * Persists preference to localStorage
-     */
-    const toggleTheme = useCallback(() => {
-        setIsDarkMode((prev) => {
-            const newValue = !prev;
-            localStorage.setItem("theme", newValue ? "dark" : "light");
-            return newValue;
-        });
-    }, []);
-
-    /**
-     * Set a specific theme mode
-     * @param {boolean} dark - Whether to enable dark mode
-     */
-    const setTheme = useCallback((dark) => {
-        setIsDarkMode(dark);
-        localStorage.setItem("theme", dark ? "dark" : "light");
-    }, []);
 
     const setAuth = useCallback((user, token) => {
         setAuthState({ user, token });
@@ -132,11 +96,6 @@ export function AppProvider({ children }) {
     // Memoize context value to prevent unnecessary re-renders
     const contextValue = useMemo(
         () => ({
-            // Theme
-            isDarkMode,
-            toggleTheme,
-            setTheme,
-
             // Auth
             user: authState.user,
             token: authState.token,
@@ -147,7 +106,7 @@ export function AppProvider({ children }) {
             appName: "Simple Vite React Express",
             version: "2.1.0",
         }),
-        [authState.user, authState.token, isDarkMode, toggleTheme, setTheme, setAuth, clearAuth]
+        [authState.user, authState.token, setAuth, clearAuth]
     );
 
     return (

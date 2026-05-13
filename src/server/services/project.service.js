@@ -151,70 +151,7 @@ export const remove = async (id) => {
   }
 };
 
-export const addMember = async (projectId, memberData) => {
-  return await db.prisma.projectMember.create({
-    data: {
-      projectId,
-      ...memberData,
-    },
-    include: {
-      contact: {
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          email: true,
-        },
-      },
-      project: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
-    },
-  });
-};
 
-export const getMembers = async (projectId) => {
-  return await db.prisma.projectMember.findMany({
-    where: { projectId },
-    include: {
-      contact: {
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          email: true,
-          phone: true,
-          company: true,
-        },
-      },
-    },
-    orderBy: {
-      joinedAt: 'asc',
-    },
-  });
-};
-
-export const removeMember = async (projectId, contactId) => {
-  try {
-    await db.prisma.projectMember.delete({
-      where: {
-        contactId_projectId: {
-          contactId,
-          projectId,
-        },
-      },
-    });
-    return true;
-  } catch (error) {
-    if (error.code === 'P2025') {
-      return false; // Record not found
-    }
-    throw error;
-  }
-};
 
 export const getProjectStats = async (projectId) => {
   const stats = await db.prisma.project.findUnique({

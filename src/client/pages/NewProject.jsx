@@ -79,13 +79,30 @@ const NewProject = () => {
                         {({ handleSubmit, isSubmitting }) => (
                             <form onSubmit={handleSubmit}>
                                 <Grid container spacing={3}>
-                                    <Grid item xs={12} sm={6}>
-                                        <Field name="name" as={TextField} label="Project Name" required fullWidth variant="outlined" />
+                                    {/* Row 1: Project Name and Status */}
+                                    <Grid size={{ xs: 12, sm: 6 }}>
+                                        <Field
+                                            name="name"
+                                            as={TextField}
+                                            label="Project Name"
+                                            required
+                                            fullWidth
+                                            variant="outlined"
+                                            sx={{ "& .MuiOutlinedInput-root": { height: "56px" } }}
+                                        />
                                         <ErrorMessage name="name">{(msg) => <Box sx={errorMessageSx}>{msg}</Box>}</ErrorMessage>
                                     </Grid>
-
-                                    <Grid item xs={12} sm={6}>
-                                        <Field name="status" as={TextField} select label="Status" required fullWidth variant="outlined">
+                                    <Grid size={{ xs: 12, sm: 6 }}>
+                                        <Field
+                                            name="status"
+                                            as={TextField}
+                                            select
+                                            label="Status"
+                                            required
+                                            fullWidth
+                                            variant="outlined"
+                                            sx={{ "& .MuiOutlinedInput-root": { height: "56px" } }}
+                                        >
                                             <MenuItem value="active">Active</MenuItem>
                                             <MenuItem value="planning">Planning</MenuItem>
                                             <MenuItem value="completed">Completed</MenuItem>
@@ -94,7 +111,8 @@ const NewProject = () => {
                                         <ErrorMessage name="status">{(msg) => <Box sx={errorMessageSx}>{msg}</Box>}</ErrorMessage>
                                     </Grid>
 
-                                    <Grid item xs={12}>
+                                    {/* Row 2: Description (full width) */}
+                                    <Grid size={{ xs: 12 }}>
                                         <Field
                                             name="description"
                                             as={TextField}
@@ -102,13 +120,15 @@ const NewProject = () => {
                                             required
                                             fullWidth
                                             multiline
-                                            minRows={3}
+                                            minRows={2}
                                             variant="outlined"
+                                            sx={{ "& .MuiOutlinedInput-root": { height: "auto" } }}
                                         />
                                         <ErrorMessage name="description">{(msg) => <Box sx={errorMessageSx}>{msg}</Box>}</ErrorMessage>
                                     </Grid>
 
-                                    <Grid item xs={12} sm={6}>
+                                    {/* Row 3: Start Date and End Date */}
+                                    <Grid size={{ xs: 12, sm: 6 }}>
                                         <Field
                                             name="startDate"
                                             as={TextField}
@@ -117,10 +137,10 @@ const NewProject = () => {
                                             fullWidth
                                             variant="outlined"
                                             InputLabelProps={{ shrink: true }}
+                                            sx={{ "& .MuiOutlinedInput-root": { height: "56px" } }}
                                         />
                                     </Grid>
-
-                                    <Grid item xs={12} sm={6}>
+                                    <Grid size={{ xs: 12, sm: 6 }}>
                                         <Field
                                             name="endDate"
                                             as={TextField}
@@ -129,10 +149,12 @@ const NewProject = () => {
                                             fullWidth
                                             variant="outlined"
                                             InputLabelProps={{ shrink: true }}
+                                            sx={{ "& .MuiOutlinedInput-root": { height: "56px" } }}
                                         />
                                     </Grid>
 
-                                    <Grid item xs={12}>
+                                    {/* Row 4: Action Buttons */}
+                                    <Grid size={{ xs: 12 }}>
                                         <Box
                                             display="flex"
                                             gap={2}
@@ -144,20 +166,19 @@ const NewProject = () => {
                                                 color="primary"
                                                 type="submit"
                                                 size="large"
-                                                disabled={isSubmitting || creating}
+                                                disabled={isSubmitting}
                                                 startIcon={<SaveAlt />}
-                                                sx={{ minWidth: 180, py: 1.5, borderRadius: 2, flex: { xs: "1 1 100%", sm: "0 0 180px" } }}
+                                                sx={{ minWidth: 180, py: 1.5, borderRadius: 2 }}
                                             >
                                                 Create Project
                                             </Button>
-
                                             <Button
                                                 component={RouterLink}
                                                 to="/new-tasks"
                                                 variant="outlined"
                                                 size="large"
                                                 startIcon={<Assignment />}
-                                                sx={{ minWidth: 180, py: 1.5, borderRadius: 2, flex: { xs: "1 1 100%", sm: "0 0 180px" } }}
+                                                sx={{ minWidth: 180, py: 1.5, borderRadius: 2 }}
                                             >
                                                 Go To New Task
                                             </Button>

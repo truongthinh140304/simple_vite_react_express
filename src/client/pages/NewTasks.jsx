@@ -6,6 +6,7 @@ import * as Yup from "yup";
 import { toast } from "react-toastify";
 import { Assignment, SaveAlt } from "@mui/icons-material";
 import { useProjects, useContacts } from "../hooks";
+import api from "../services/api";
 
 const errorMessageSx = {
     color: "error.main",
@@ -37,21 +38,21 @@ const NewTasks = () => {
         try {
             setIsSubmitting(true);
 
-            const response = await fetch("/api/v1/task/create", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    title: values.title,
-                    description: values.description,
-                    status: values.status,
-                    priority: values.priority,
-                    dueDate: values.dueDate || null,
-                    projectId: values.projectId ? Number(values.projectId) : null,
-                    assigneeId: values.assigneeId ? Number(values.assigneeId) : null,
-                }),
-            });
+            // Parse dueDate - convert to ISO datetime or null
+            let dueDate = null;
+            if (values.dueDate) {
+                dueDate = new Date(values.dueDate).toISOString();
+            }
 
-            if (!response.ok) throw new Error("Failed to create task");
+            await api.post("/task/create", {
+                title: values.title,
+                description: values.description,
+                status: values.status,
+                priority: values.priority,
+                dueDate: dueDate,
+                projectId: values.projectId ? Number(values.projectId) : null,
+                assigneeId: values.assigneeId ? Number(values.assigneeId) : null,
+            });
 
             toast.success("Task created successfully");
             resetForm();
@@ -92,6 +93,7 @@ const NewTasks = () => {
                         {({ handleSubmit }) => (
                             <form onSubmit={handleSubmit}>
                                 <Grid container spacing={3}>
+                                    {/* Row 1: Title and Description */}
                                     <Grid size={{ xs: 12, sm: 6 }}>
                                         <Field
                                             name="title"
@@ -100,6 +102,7 @@ const NewTasks = () => {
                                             required
                                             fullWidth
                                             variant="outlined"
+                                            sx={{ "& .MuiOutlinedInput-root": { height: "56px" } }}
                                         />
                                         <ErrorMessage name="title">{(msg) => <Box sx={errorMessageSx}>{msg}</Box>}</ErrorMessage>
                                     </Grid>
@@ -111,23 +114,25 @@ const NewTasks = () => {
                                             required
                                             fullWidth
                                             variant="outlined"
+                                            sx={{ "& .MuiOutlinedInput-root": { height: "56px" } }}
                                         />
                                         <ErrorMessage name="description">{(msg) => <Box sx={errorMessageSx}>{msg}</Box>}</ErrorMessage>
                                     </Grid>
 
+                                    {/* Row 2: Due Date and Project */}
                                     <Grid size={{ xs: 12, sm: 6 }}>
-                                        <Field name="dueDate"
+                                        <Field
+                                            name="dueDate"
                                             as={TextField}
                                             label="Due Date"
                                             type="date"
                                             fullWidth
                                             variant="outlined"
-                                            InputLabelProps={{ shrink: true }} />
-                                        <ErrorMessage name="dueDate"> {(msg) => <Box sx={errorMessageSx}>{msg}</Box>} </ErrorMessage>
+                                            InputLabelProps={{ shrink: true }}
+                                            sx={{ "& .MuiOutlinedInput-root": { height: "56px" } }}
+                                        />
+                                        <ErrorMessage name="dueDate">{(msg) => <Box sx={errorMessageSx}>{msg}</Box>}</ErrorMessage>
                                     </Grid>
-
-
-
                                     <Grid size={{ xs: 12, sm: 6 }}>
                                         <Field
                                             name="projectId"
@@ -137,6 +142,7 @@ const NewTasks = () => {
                                             fullWidth
                                             variant="outlined"
                                             disabled={isLoading}
+                                            sx={{ "& .MuiOutlinedInput-root": { height: "56px" } }}
                                         >
                                             <MenuItem value="">No Project</MenuItem>
                                             {projects.map((project) => (
@@ -147,6 +153,7 @@ const NewTasks = () => {
                                         </Field>
                                     </Grid>
 
+                                    {/* Row 3: Assignee and Status */}
                                     <Grid size={{ xs: 12, sm: 6 }}>
                                         <Field
                                             name="assigneeId"
@@ -156,6 +163,7 @@ const NewTasks = () => {
                                             fullWidth
                                             variant="outlined"
                                             disabled={isLoading}
+                                            sx={{ "& .MuiOutlinedInput-root": { height: "56px" } }}
                                         >
                                             <MenuItem value="">Unassigned</MenuItem>
                                             {contacts.map((contact) => (
@@ -165,8 +173,6 @@ const NewTasks = () => {
                                             ))}
                                         </Field>
                                     </Grid>
-
-
                                     <Grid size={{ xs: 12, sm: 6 }}>
                                         <Field
                                             name="status"
@@ -176,6 +182,7 @@ const NewTasks = () => {
                                             required
                                             fullWidth
                                             variant="outlined"
+                                            sx={{ "& .MuiOutlinedInput-root": { height: "56px" } }}
                                         >
                                             <MenuItem value="TODO">To Do</MenuItem>
                                             <MenuItem value="IN_PROGRESS">In Progress</MenuItem>
@@ -185,7 +192,7 @@ const NewTasks = () => {
                                         <ErrorMessage name="status">{(msg) => <Box sx={errorMessageSx}>{msg}</Box>}</ErrorMessage>
                                     </Grid>
 
-
+                                    {/* Row 4: Priority (left only) */}
                                     <Grid size={{ xs: 12, sm: 6 }}>
                                         <Field
                                             name="priority"
@@ -195,6 +202,7 @@ const NewTasks = () => {
                                             required
                                             fullWidth
                                             variant="outlined"
+                                            sx={{ "& .MuiOutlinedInput-root": { height: "56px" } }}
                                         >
                                             <MenuItem value="LOW">Low</MenuItem>
                                             <MenuItem value="MEDIUM">Medium</MenuItem>
@@ -205,6 +213,7 @@ const NewTasks = () => {
                                         <ErrorMessage name="priority">{(msg) => <Box sx={errorMessageSx}>{msg}</Box>}</ErrorMessage>
                                     </Grid>
 
+                                    {/* Row 5: Submit Button */}
                                     <Grid size={{ xs: 12 }}>
                                         <Box display="flex" justifyContent="flex-end" mt={2}>
                                             <Button

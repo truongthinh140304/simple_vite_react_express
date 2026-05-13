@@ -3,16 +3,13 @@
  * ==================
  *
  * API methods for project management.
- * Handles project CRUD operations and member management.
+ * Handles project CRUD operations.
  *
  * Usage:
  *   import { projectsService } from '@/client/services';
  *
- *   // Get all projects with members
+ *   // Get all projects
  *   const projects = await projectsService.getAll();
- *
- *   // Add a member to a project
- *   await projectsService.addMember(projectId, contactId, 'developer');
  */
 
 import api from "./api";
@@ -82,25 +79,6 @@ export const projectsService = {
    * @returns {Promise<{success: boolean, data: Project}>}
    */
   delete: (id) => api.delete(`/project/${id}`),
-
-  /**
-   * Add a member to a project
-   * @param {number|string} projectId - Project ID
-   * @param {number|string} contactId - Contact ID to add
-   * @param {string} [role='member'] - Member's role
-   * @returns {Promise<{success: boolean, data: ProjectMember}>}
-   */
-  addMember: (projectId, contactId, role = "member") =>
-    api.post(`/project/${projectId}/members`, { contactId, role }),
-
-  /**
-   * Remove a member from a project
-   * @param {number|string} projectId - Project ID
-   * @param {number|string} contactId - Contact ID to remove
-   * @returns {Promise<{success: boolean}>}
-   */
-  removeMember: (projectId, contactId) =>
-    api.delete(`/project/${projectId}/members/${contactId}`),
 };
 
 export default projectsService;
