@@ -1,41 +1,10 @@
 import { Router } from 'express';
-import { celebrate, Joi, Segments } from 'celebrate';
 import * as taskService from '../../services/task.service.js';
 import { successResponse, errorResponse } from '../../utils/response.js';
 import { authMiddleware } from '../../middleware/auth.middleware.js';
+import { taskValidation } from '../../middleware/validate.js';
 
 const router = Router();
-
-// Validation schemas
-const createTaskSchema = {
-  [Segments.BODY]: Joi.object({
-    title: Joi.string().required().min(1).max(255),
-    description: Joi.string().required().max(1000),
-    status: Joi.string().valid('TODO', 'IN_PROGRESS', 'REVIEW', 'DONE').default('TODO'),
-    priority: Joi.string().valid('LOW', 'MEDIUM', 'HIGH', 'URGENT', 'ULTRA').default('MEDIUM'),
-    dueDate: Joi.string().optional().allow(null, ''),
-    assigneeId: Joi.number().integer().positive().optional().allow(null),
-    projectId: Joi.number().integer().positive().optional().allow(null),
-  }),
-};
-
-const updateTaskSchema = {
-  [Segments.BODY]: Joi.object({
-    title: Joi.string().optional().min(1).max(255),
-    description: Joi.string().optional().allow('').max(1000),
-    status: Joi.string().valid('TODO', 'IN_PROGRESS', 'REVIEW', 'DONE').optional(),
-    priority: Joi.string().valid('LOW', 'MEDIUM', 'HIGH', 'URGENT', 'ULTRA').optional(),
-    dueDate: Joi.date().optional().allow(null),
-    assigneeId: Joi.number().integer().positive().optional().allow(null),
-    projectId: Joi.number().integer().positive().optional().allow(null),
-  }),
-};
-
-const taskIdSchema = {
-  [Segments.PARAMS]: Joi.object({
-    id: Joi.number().integer().positive().required(),
-  }),
-};
 
 // Routes
 router.get('/list', authMiddleware, async (req, res) => {
@@ -56,7 +25,7 @@ router.get('/list', authMiddleware, async (req, res) => {
   }
 });
 
-router.get('/:id', authMiddleware, celebrate(taskIdSchema), async (req, res) => {
+router.get('/:id', authMiddleware, taskValidation.byId, async (req, res) => {
   try {
     const task = await taskService.findById(parseInt(req.params.id));
     if (!task) {
@@ -69,7 +38,7 @@ router.get('/:id', authMiddleware, celebrate(taskIdSchema), async (req, res) => 
   }
 });
 
-router.post('/create', authMiddleware, celebrate(createTaskSchema), async (req, res) => {
+router.post('/create', authMiddleware, taskValidation.create, async (req, res) => {
   try {
     const task = await taskService.create({
       ...req.body,
@@ -82,7 +51,7 @@ router.post('/create', authMiddleware, celebrate(createTaskSchema), async (req, 
   }
 });
 
-router.put('/:id', authMiddleware, celebrate({ ...taskIdSchema, ...updateTaskSchema }), async (req, res) => {
+router.put('/:id', authMiddleware, taskValidation.update, async (req, res) => {
   try {
     const task = await taskService.update(parseInt(req.params.id), req.body);
     if (!task) {
@@ -95,7 +64,7 @@ router.put('/:id', authMiddleware, celebrate({ ...taskIdSchema, ...updateTaskSch
   }
 });
 
-router.delete('/:id', authMiddleware, celebrate(taskIdSchema), async (req, res) => {
+router.delete('/:id', authMiddleware, taskValidation.byId, async (req, res) => {
   try {
     const deleted = await taskService.remove(parseInt(req.params.id));
     if (!deleted) {
@@ -109,14 +78,7 @@ router.delete('/:id', authMiddleware, celebrate(taskIdSchema), async (req, res) 
 });
 
 // Update task status
-router.patch('/:id/status', authMiddleware, celebrate({
-  [Segments.PARAMS]: Joi.object({
-    id: Joi.number().integer().positive().required(),
-  }),
-  [Segments.BODY]: Joi.object({
-    status: Joi.string().valid('TODO', 'IN_PROGRESS', 'REVIEW', 'DONE').required(),
-  }),
-}), async (req, res) => {
+router.patch('/:id/status', authMiddleware, taskValidation.updateStatus, async (req, res) => {
   try {
     const task = await taskService.updateStatus(parseInt(req.params.id), req.body.status);
     if (!task) {
